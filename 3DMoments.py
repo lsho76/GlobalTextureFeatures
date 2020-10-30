@@ -51,14 +51,14 @@ def moments3d(image, mask):
     moments['mean_y'] = m010/m000
     moments['mean_z'] = m001/m000
 
-    U1 = -1 + x*dx-moments['mean_x']
-    U0 = -1 + (x-1)*dx-moments['mean_x']
+    U1 = -1 + x*dx - moments['mean_x']
+    U0 = -1 + (x-1)*dx - moments['mean_x']
 
-    V1 = -1 + y*dy-moments['mean_y']
-    V0 = -1 + (y-1)*dy-moments['mean_y']
+    V1 = -1 + y*dy - moments['mean_y']
+    V0 = -1 + (y-1)*dy - moments['mean_y']
 
-    W1 = -1 + z*dz-moments['mean_z']
-    W0 = -1 + (z-1)*dz-moments['mean_z']
+    W1 = -1 + z*dz - moments['mean_z']
+    W0 = -1 + (z-1)*dz - moments['mean_z']
 
     Ix0 = U1 - U0
     Iy0 = V1 - V0
