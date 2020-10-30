@@ -5,6 +5,7 @@ from numpy import mgrid, sum
 import math
 
 # image, mask: images in simple ITK format
+
 def moments3d(image, mask):
     
     # Change from sitk image to numpy array
@@ -15,7 +16,9 @@ def moments3d(image, mask):
     roiImage_array = image_array * mask_array
 
     assert len(roiImage_array.shape) == 3
-    x, y, z = mgrid[:roiImage_array.shape[0],:roiImage_array.shape[1],:roiImage_array.shape[2]] # Get a dense multi-dimensional 'meshgrid'.
+    
+    # Get a dense multi-dimensional 'meshgrid'.
+    x, y, z = mgrid[:roiImage_array.shape[0],:roiImage_array.shape[1],:roiImage_array.shape[2]]
 
     # Get image spacing in x, y and z
     dx = image.GetSpacing()[0]
@@ -169,17 +172,25 @@ def moments3d(image, mask):
 
     return nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4
 
-def extractMomentInvariantFeatures(image, mask, RTstructure, OncoID, filepath):
+# strname: RT structure name
+# ptID: patient id
+# filepath: file path to save moment invariant features
+
+def extractMomentInvariantFeatures(image, mask, strname, ptID, filepath):
     import csv
     os.chdir(filepath)
 
-    with open(os.path.join(str(OncoID)+'_'+RTstructure+'_momentinvariants.csv'), 'w', newline='') as f:
+    with open(os.path.join(str(ptID)+'_'+strname+'_momentinvariants.csv'), 'w', newline='') as f:
         wr = csv.writer(f)
+        
+        # Rescale the original image to [0, 255]
         decompositionName = 'original'
         rescaler1 = sitk.RescaleIntensityImageFilter()
         rescaler1.SetOutputMinimum(0)
         rescaler1.SetOutputMaximum(255)
         rescaled_image = rescaler1.Execute(image)
+        
+        # Names for normalized central moments and moment invariants
         headers_original = list([decompositionName+'_eta200', decompositionName+'_eta020', decompositionName+'_eta002', decompositionName+'_eta101', decompositionName+'_eta110',
                             decompositionName+'_eta011', decompositionName+'_eta300', decompositionName+'_eta030', decompositionName+'_eta003', decompositionName+'_eta210',
                             decompositionName+'_eta201', decompositionName+'_eta120', decompositionName+'_eta111', decompositionName+'_eta102', decompositionName+'_eta021',
@@ -193,14 +204,15 @@ def extractMomentInvariantFeatures(image, mask, RTstructure, OncoID, filepath):
         moments = np.array([nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4])
 
         headers_wavelet = []
-        for decompositionImage, decompositionName, inputKwargs in imageoperations.getWaveletImage(image, mask):
-            print('Calculated moment invariant features with', decompositionName)
+        for decompositionImage, decompositionName, inputKwargs in imageoperations.getWaveletImage(image, mask):          
+
+            # Rescale the wavelet-filetered image to [0, 255]       
             rescaler2 = sitk.RescaleIntensityImageFilter()
             rescaler2.SetOutputMinimum(0)
             rescaler2.SetOutputMaximum(255)
             rescaled_decompositionImage = rescaler2.Execute(decompositionImage)
-            nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4 = moments3d(rescaled_decompositionImage, mask)
-
+            
+            # Names for normalized central moments and moment invariants
             headers_wavelet += [decompositionName+'_eta200', decompositionName+'_eta020', decompositionName+'_eta002', decompositionName+'_eta101', decompositionName+'_eta110',
                         decompositionName+'_eta011', decompositionName+'_eta300', decompositionName+'_eta030', decompositionName+'_eta003', decompositionName+'_eta210',
                         decompositionName+'_eta201', decompositionName+'_eta120', decompositionName+'_eta111', decompositionName+'_eta102', decompositionName+'_eta021',
@@ -208,21 +220,23 @@ def extractMomentInvariantFeatures(image, mask, RTstructure, OncoID, filepath):
                         decompositionName+'_eta301', decompositionName+'_eta220', decompositionName+'_eta211', decompositionName+'_eta202', decompositionName+'_eta130',
                         decompositionName+'_eta121', decompositionName+'_eta112', decompositionName+'_eta103', decompositionName+'_eta031', decompositionName+'_eta022', decompositionName+'_eta013',
                         decompositionName+'_M21', decompositionName+'_M22', decompositionName+'_M23', decompositionName+'_M3', decompositionName+'_M4']
-
-            moments = np.concatenate([moments,np.array([nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4])])
+            
+            print('Calculated moment invariant features with', decompositionName)
+            nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4 = moments3d(rescaled_decompositionImage, mask)
+            moments = np.concatenate([moments, np.array([nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4])])
 
         logFeatures = {}
-        sigmaValues = [1,3,5]
+        sigmaValues = [1, 3, 5] # sigma: 1, 3 and 5 mm
         headers_LoG = []
-        for logImage, decompositionName, inputSettings in imageoperations.getLoGImage(image, mask, sigma=sigmaValues):
+        for logImage, decompositionName, inputSettings in imageoperations.getLoGImage(image, mask, sigma = sigmaValues):
 
-            print('Calculated moment invariant features with', decompositionName)
+            # Rescale the wavelet-filetered image to [0, 255]     
             rescaler3 = sitk.RescaleIntensityImageFilter()
             rescaler3.SetOutputMinimum(0)
             rescaler3.SetOutputMaximum(255)
             rescaled_logImage = rescaler3.Execute(logImage)
-            nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4 = moments3d(rescaled_logImage, mask)
 
+            # Names for normalized central moments and moment invariants
             headers_LoG += [decompositionName+'_eta200', decompositionName+'_eta020', decompositionName+'_eta002', decompositionName+'_eta101', decompositionName+'_eta110',
                             decompositionName+'_eta011', decompositionName+'_eta300', decompositionName+'_eta030', decompositionName+'_eta003', decompositionName+'_eta210',
                             decompositionName+'_eta201', decompositionName+'_eta120', decompositionName+'_eta111', decompositionName+'_eta102', decompositionName+'_eta021',
@@ -231,9 +245,11 @@ def extractMomentInvariantFeatures(image, mask, RTstructure, OncoID, filepath):
                             decompositionName+'_eta121', decompositionName+'_eta112', decompositionName+'_eta103', decompositionName+'_eta031', decompositionName+'_eta022', decompositionName+'_eta013',
                             decompositionName+'_M21', decompositionName+'_M22', decompositionName+'_M23', decompositionName+'_M3', decompositionName+'_M4']
 
-            moments = np.concatenate([moments,np.array([nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4])])
+            print('Calculated moment invariant features with', decompositionName)
+            nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4 = moments3d(rescaled_logImage, mask)
+            moments = np.concatenate([moments, np.array([nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4])])
 
-        headers = headers_original+headers_wavelet+headers_LoG
+        headers = headers_original + headers_wavelet + headers_LoG
         wr.writerow(headers)
         row = []
         index = 0
