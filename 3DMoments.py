@@ -18,19 +18,19 @@ def moments3d(image, mask):
     assert len(roiImage_array.shape) == 3
     x, y, z = mgrid[:roiImage_array.shape[0],:roiImage_array.shape[1],:roiImage_array.shape[2]] # Get a dense multi-dimensional 'meshgrid'.
 
-    # Get image spacing in 3D
+    # Get image spacing in x, y and z
     dx=image.GetSpacing()[0]
     dy=image.GetSpacing()[1]
     dz=image.GetSpacing()[2]
 
-    Ui1 = -1 + x*dx
-    Ui0 = -1 + (x-1)*dx
+    Ui1 = x*dx
+    Ui0 = (x-1)*dx
 
-    Vi1 = -1 + y*dy
-    Vi0 = -1 + (y-1)*dy
+    Vi1 = y*dy
+    Vi0 = (y-1)*dy
 
-    Wi1 = -1 + z*dz
-    Wi0 = -1 + (z-1)*dz
+    Wi1 = z*dz
+    Wi0 = (z-1)*dz
 
     Ixi1 = 0.5*(Ui1**2 - Ui0**2)
     Ixi0 = Ui1 - Ui0
@@ -51,14 +51,14 @@ def moments3d(image, mask):
     moments['mean_y'] = m010/m000
     moments['mean_z'] = m001/m000
 
-    U1 = -1 + x*dx - moments['mean_x']
-    U0 = -1 + (x-1)*dx - moments['mean_x']
+    U1 = x*dx - moments['mean_x']
+    U0 = (x-1)*dx - moments['mean_x']
 
-    V1 = -1 + y*dy - moments['mean_y']
-    V0 = -1 + (y-1)*dy - moments['mean_y']
+    V1 = y*dy - moments['mean_y']
+    V0 = (y-1)*dy - moments['mean_y']
 
-    W1 = -1 + z*dz - moments['mean_z']
-    W0 = -1 + (z-1)*dz - moments['mean_z']
+    W1 = z*dz - moments['mean_z']
+    W0 = (z-1)*dz - moments['mean_z']
 
     Ix0 = U1 - U0
     Iy0 = V1 - V0
