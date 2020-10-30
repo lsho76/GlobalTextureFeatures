@@ -4,11 +4,9 @@ import numpy as np
 from numpy import mgrid, sum
 import math
 
-# image, mask: images in simple ITK format
-
 def moments3d(image, mask):
     
-    # Change from sitk image to numpy array
+    # Change from simple ITK image to numpy array
     image_array = sitk.GetArrayViewFromImage(image) 
     mask_array = sitk.GetArrayViewFromImage(mask)
 
