@@ -46,6 +46,7 @@ def moments3d(image, mask):
     m001 = sum(Ixi0*Iyi0*Izi1*roiImage_array)
     m000 = sum(Ixi0*Iyi0*Izi0*roiImage_array)
 
+    # Centroids
     moments = {}
     moments['mean_x'] = m100/m000
     moments['mean_y'] = m010/m000
@@ -80,6 +81,7 @@ def moments3d(image, mask):
     Iy4 = 1.0/5.0*(V1**5 - V0**5)
     Iz4 = 1.0/5.0*(W1**5 - W0**5)
 
+    # Central moments
     mu000 = sum(Ix0*Iy0*Iz0*roiImage_array)
     mu200 = sum(Ix2*Iy0*Iz0*roiImage_array)
     mu020 = sum(Ix0*Iy2*Iz0*roiImage_array)
@@ -123,6 +125,7 @@ def moments3d(image, mask):
     r3 = 3.0/3.0+1.0
     r4 = 4.0/3.0+1.0
 
+    # Normalized central moments
     nu200 = mu200/math.pow(mu000,r2)
     nu020 = mu020/math.pow(mu000,r2)
     nu002 = mu002/math.pow(mu000,r2)
@@ -162,6 +165,7 @@ def moments3d(image, mask):
     nu022 = mu022/math.pow(mu000,r4)
     nu013 = mu013/math.pow(mu000,r4)
 
+    # Moment invariants
     M21 = nu200 + nu020 + nu002
     M22 = nu200*nu020 + nu200*nu002 + nu020*nu002 - math.pow(nu101,2) - math.pow(nu110,2) - math.pow(nu011,2)
     M23 = nu200*nu020*nu002 - nu002*math.pow(nu110,2) + 2*nu110*nu101*nu011 - nu020*math.pow(nu101,2) - nu200*math.pow(nu011,2)
