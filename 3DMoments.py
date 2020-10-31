@@ -228,7 +228,7 @@ def extractMomentInvariantFeatures(image, mask, strname, ptID, filepath):
             moments = np.concatenate([moments, np.array([nu200, nu020, nu002, nu101, nu110, nu011, nu300, nu030, nu003, nu210, nu201, nu120, nu111, nu102, nu021, nu012, nu400, nu040, nu004, nu310, nu301, nu220, nu211, nu202, nu130, nu121, nu112, nu103, nu031, nu022, nu013, M21, M22, M23, M3, M4])])
 
         logFeatures = {}
-        sigmaValues = [1, 3, 5] # sigma: 1, 3 and 5 mm
+        sigmaValues = [1, 3, 5] # sigmas 1, 3 and 5 mm in the LoG filter
         headers_LoG = []
         for logImage, decompositionName, inputSettings in imageoperations.getLoGImage(image, mask, sigma = sigmaValues):
 
