@@ -208,7 +208,7 @@ def extractMomentInvariantFeatures(image, mask, strname, ptID, filepath):
         headers_wavelet = []
         for decompositionImage, decompositionName, inputKwargs in imageoperations.getWaveletImage(image, mask):          
 
-            # Rescale the wavelet-filetered image to [0, 255]       
+            # Rescale the Wavelet-filetered image to [0, 255]       
             rescaler2 = sitk.RescaleIntensityImageFilter()
             rescaler2.SetOutputMinimum(0)
             rescaler2.SetOutputMaximum(255)
@@ -232,7 +232,7 @@ def extractMomentInvariantFeatures(image, mask, strname, ptID, filepath):
         headers_LoG = []
         for logImage, decompositionName, inputSettings in imageoperations.getLoGImage(image, mask, sigma = sigmaValues):
 
-            # Rescale the wavelet-filetered image to [0, 255]     
+            # Rescale the LoG-filetered image to [0, 255]     
             rescaler3 = sitk.RescaleIntensityImageFilter()
             rescaler3.SetOutputMinimum(0)
             rescaler3.SetOutputMaximum(255)
